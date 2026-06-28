@@ -1,4 +1,3 @@
-import { type JSX } from "react";
 import { useSudokuBoard } from "./hooks/useSudokuBoard";
 import { Header } from "./components/Header";
 import { StatusBar } from "./components/StatusBar";
@@ -12,7 +11,7 @@ import { ActionBar } from "./components/ActionBar";
  * 盤面に関する状態・ロジックは useSudokuBoard に委譲し、
  * ここでは画面構成（どの部品にどの状態・操作を渡すか）のみを担う。
  */
-export default function App(): JSX.Element {
+export default function App() {
   const {
     cellInfos,
     selectedTool,
