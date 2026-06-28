@@ -1,31 +1,13 @@
 import { useState, useMemo, useCallback, type JSX } from "react";
-
-// ============================================================
-//  Types
-// ============================================================
-
-type CellValue = number; // 0 = empty, 1-9 = filled
-type Board = CellValue[]; // length 81
-type Candidates = (number[] | null)[]; // length 81, null = filled cell
-
-type StepMethod = "logic" | "guess";
-
-interface SolutionStep {
-  index: number;
-  value: number;
-  method: StepMethod;
-}
-
-type StatusColor =
-  | "text-blue-600"
-  | "text-red-500"
-  | "text-green-600"
-  | "text-orange-500";
-
-interface StatusMessage {
-  text: string;
-  color: StatusColor;
-}
+import type {
+  Board,
+  Candidates,
+  CellRenderInfo,
+  CellVariant,
+  SolutionStep,
+  StatusMessage,
+  StepMethod,
+} from "./types";
 
 const BOARD_SIZE = 81;
 
@@ -471,14 +453,6 @@ function generateStepsWithSmartLogic(initialBoard: Board, finalBoard: Board): So
 //  Cell rendering helpers
 // ============================================================
 
-interface CellRenderInfo {
-  value: number;
-  candidates: number[] | null;
-  /** Visual variant for the filled-cell styling. */
-  variant: "empty" | "user" | "logic" | "guess";
-  isError: boolean;
-}
-
 /** 9x9 grid border classes: thick lines every 3 cells, like the original .sudoku-cell rules. */
 function getCellBorderClasses(index: number): string {
   const col = index % 9;
@@ -502,7 +476,7 @@ function getCellBorderClasses(index: number): string {
   return classes.join(" ");
 }
 
-function getFilledTextClasses(variant: CellRenderInfo["variant"], isError: boolean): string {
+function getFilledTextClasses(variant: CellVariant, isError: boolean): string {
   if (isError) return "text-red-600 bg-red-100";
   switch (variant) {
     case "user":
@@ -715,7 +689,7 @@ export default function App(): JSX.Element {
       return Array.from({ length: 81 }, (_, i) => {
         const val = tempBoard[i];
         if (val !== 0) {
-          const variant: CellRenderInfo["variant"] = userInputIndices.has(i)
+          const variant: CellVariant = userInputIndices.has(i)
             ? "user"
             : methods.get(i) === "guess"
               ? "guess"
