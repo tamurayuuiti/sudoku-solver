@@ -287,11 +287,11 @@ export function generateStepsWithSmartLogic(initialBoard: Board, finalBoard: Boa
 
   while (emptyCount > 0 && loopGuard < 1000) {
     loopGuard++;
-    let madeProgress = false;
 
     const candidates = getAllSmartCandidates(currentBoard);
 
     // Strategy 1: Naked Single
+    let foundNakedSingle = false;
     for (let i = 0; i < 81; i++) {
       const c = candidates[i];
       if (currentBoard[i] === 0 && c && c.length === 1) {
@@ -299,20 +299,21 @@ export function generateStepsWithSmartLogic(initialBoard: Board, finalBoard: Boa
         currentBoard[i] = val;
         steps.push({ index: i, value: val, method: "logic" });
         emptyCount--;
-        madeProgress = true;
+        foundNakedSingle = true;
       }
     }
-    if (madeProgress) continue;
+    if (foundNakedSingle) continue;
 
     // Strategy 2: Hidden Single
+    let foundHiddenSingle = false;
     for (let num = 1; num <= 9; num++) {
       if (applyHiddenSingle(currentBoard, steps, num, candidates)) {
         emptyCount--;
-        madeProgress = true;
+        foundHiddenSingle = true;
         break;
       }
     }
-    if (madeProgress) continue;
+    if (foundHiddenSingle) continue;
 
     // Fallback (Guess): pick the cell with fewest candidates
     let bestCell = -1;
@@ -333,7 +334,6 @@ export function generateStepsWithSmartLogic(initialBoard: Board, finalBoard: Boa
       currentBoard[bestCell] = correctVal;
       steps.push({ index: bestCell, value: correctVal, method: "guess" });
       emptyCount--;
-      madeProgress = true;
     } else {
       for (let i = 0; i < 81; i++) {
         if (currentBoard[i] === 0) {
@@ -341,7 +341,6 @@ export function generateStepsWithSmartLogic(initialBoard: Board, finalBoard: Boa
           currentBoard[i] = correctVal;
           steps.push({ index: i, value: correctVal, method: "guess" });
           emptyCount--;
-          madeProgress = true;
           break;
         }
       }
