@@ -61,7 +61,13 @@ export default function App() {
           )}
         </div>
 
-        <div className="lg:w-64 lg:shrink-0 lg:flex lg:flex-col lg:justify-center lg:gap-6 lg:sticky lg:top-6">
+        <div className="lg:w-64 lg:shrink-0 lg:flex lg:flex-col lg:gap-6 lg:sticky lg:top-14">
+          {/* 盤面上辺とパレット上辺を揃えるための透明スペーサー。
+              左カラムは StatusBar (h-6 + mb-2 = 2rem) の分だけ盤面が下にあるのに対し、
+              右カラムはこのコンテナ自体の gap-6 (1.5rem) が spacer とパレットの間に
+              自動で入るため、spacer 自身の高さは 2rem 全部ではなく、
+              gap-6 で相殺しきれない差分 (2rem - 1.5rem = 0.5rem) だけで良い。 */}
+          <div className="hidden lg:block lg:h-2" />
           <ToolPalette selectedTool={selectedTool} onSelectTool={setSelectedTool} />
 
           <ActionBar
