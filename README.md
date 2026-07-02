@@ -1,8 +1,18 @@
-# react-template
+# ナンプレSolver
 
-個人開発向けの React テンプレートリポジトリです。
+ブラウザ上で数独（ナンプレ）の入力・編集・解析を行える React + TypeScript 製のアプリケーションです。
 
-React + TypeScript + Vite + Tailwind CSS v4 をベースに、軽量かつ拡張しやすい構成を提供します。
+候補表示や論理解法によるソルバー、解法リプレイ、キーボード操作などを備えています。
+
+---
+
+## 特徴
+
+- キーボード・マウスの両方に対応した快適な入力
+- 候補数字（メモ）の表示
+- 入力時の盤面整合性チェック
+- 論理解法を優先した数独ソルバー
+- 解法手順のリプレイ表示
 
 ---
 
@@ -11,7 +21,7 @@ React + TypeScript + Vite + Tailwind CSS v4 をベースに、軽量かつ拡張
 - React
 - TypeScript
 - Vite
-- Tailwind CSS v4
+- Tailwind CSS
 - ESLint
 
 ---
@@ -19,34 +29,37 @@ React + TypeScript + Vite + Tailwind CSS v4 をベースに、軽量かつ拡張
 ## ディレクトリ構成
 
 ```text
-src/
-├── components/   # UIコンポーネント
-├── lib/          # 共通処理・ユーティリティ
-````
-
-※必要に応じて以下を追加可能
-
-* pages/
-* layouts/
+sudoku-solver/
+├── src/
+│   ├── components/       # UIコンポーネント
+│   ├── hooks/            # カスタムHook
+│   ├── utils/            # 数独ロジック・ユーティリティ
+│   ├── App.tsx           # アプリ全体のレイアウト
+│   ├── main.tsx          # エントリーポイント
+│   ├── index.css         # グローバルスタイル
+│   └── types.ts          # 共通型定義
+├── package.json
+├── vite.config.ts
+└── README.md
+```
 
 ---
 
 ## セットアップ
 
-### 1. テンプレートから作成
-
-GitHub の "Use this template" を使用して新規リポジトリを作成します。
-
-### 2. クローン
+### 1. 依存関係のインストール
 
 ```bash
-git clone <repository-url>
-cd <project-name>
 npm install
+```
+
+### 2. 開発サーバの起動
+
+```bash
 npm run dev
 ```
 
-デフォルト：
+デフォルトでは以下のURLで起動します。
 
 ```text
 http://localhost:5173
@@ -60,7 +73,7 @@ http://localhost:5173
 npm run build
 ```
 
-出力先：
+ビルド成果物は以下へ出力されます。
 
 ```text
 dist/
@@ -68,20 +81,61 @@ dist/
 
 ---
 
-## デプロイ
+## 操作方法
 
-Vercel などの静的ホスティングサービスに対応しています。
-
-GitHub と連携することで、自動ビルド・自動デプロイが可能です。
+- マウスクリックでセルを選択
+- 数字キー（1〜9）で入力
+- Delete / Backspace / 0 で入力を削除
+- 矢印キーで選択セルを移動
+- 「候補表示」を有効にすると各セルの候補数字を表示
+- 「解く」でソルバーを実行
+- リプレイ機能で解法手順を確認
 
 ---
 
-## 開発メモ
+## 主な機能
 
-* パスエイリアス `@` を利用する
-* 共通処理は `src/lib` に集約する
-* UI コンポーネントは `src/components` に配置する
-* 依存関係は必要最小限に保つ
-* ビルド成果物（`dist/`）は直接編集しない
-* archive/ は旧コードや実験的実装の退避に使用する
-* notes/ は設計メモ・思考ログに使用する
+- 数独盤面の手入力・編集
+- キーボード入力対応
+- 候補数字の表示
+- 入力内容の矛盾検知
+- テスト問題の読み込み
+- 論理解法とバックトラックによる自動解答
+- 解法リプレイ
+
+---
+
+## 技術・アルゴリズム・仕様
+
+### 使用アルゴリズム
+
+論理解法を優先して適用し、必要な場合のみバックトラック探索を行います。
+
+採用している主な手法は以下の通りです。
+
+- Naked Single
+- Hidden Single
+- Locked Candidates
+  - Pointing
+  - Claiming
+- Naked Pairs
+- Naked Triples
+- Backtracking
+
+### 盤面データ
+
+- 盤面は81要素の1次元配列で管理
+- `0` を空マスとして扱う
+- 候補数字はセルごとに配列で保持
+- 入力時・ソルバー実行時に盤面の整合性を検証
+
+---
+
+## 設計
+
+本プロジェクトでは、保守性・拡張性を重視し、責務ごとにコードを分割しています。
+
+- 共通型を `types.ts` に集約
+- 数独ロジックを Utility として分離
+- 状態管理を Custom Hook に集約
+- UIをコンポーネント単位で分割

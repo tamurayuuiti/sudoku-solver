@@ -1,5 +1,5 @@
 {
-  "name": "react-template",
+  "name": "sudoku-solver",
   "private": true,
   "version": "1.0.0",
   "type": "module",
