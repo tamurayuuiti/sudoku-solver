@@ -72,6 +72,20 @@ export function usedNumbersAt(board: Board, row: number, col: number): Set<numbe
 }
 
 /**
+ * 2つのセルが同じ行・列・3x3ブロックのいずれかを共有している（Peer関係にある）かを判定する。
+ * 選択中セルとの関連性をハイライト表示するために UI 側（SudokuBoard）から利用する。
+ */
+export function arePeers(a: number, b: number): boolean {
+  if (a === b) return false;
+  const { row: rowA, col: colA } = toRowCol(a);
+  const { row: rowB, col: colB } = toRowCol(b);
+  if (rowA === rowB || colA === colB) return true;
+  const originA = blockOrigin(rowA, colA);
+  const originB = blockOrigin(rowB, colB);
+  return originA.startRow === originB.startRow && originA.startCol === originB.startCol;
+}
+
+/**
  * 指定セルから数字 num の候補を取り除く。取り除けた（実際に候補に含まれていた）
  * 場合は true を返す。Locked Candidates / Naked Subsets など、複数の候補消去系
  * ロジックで繰り返し使われている「候補から除外して変更有無を返す」パターンを

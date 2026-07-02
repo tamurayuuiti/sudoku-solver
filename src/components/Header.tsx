@@ -1,13 +1,13 @@
 /**
  * ページ上部のタイトルと「テスト問題」ボタン。
  * 状態は持たず、クリック時の挙動のみ親から受け取る Presentational Component。
+ * main 側の幅（lg 以上でサイドバー分だけ広がる）に合わせて max-w を揃える。
  */
 export function Header({ onLoadPreset }: { onLoadPreset: () => void }) {
   return (
-    <header className="text-center mb-4 w-full max-w-md flex justify-between items-end px-1">
+    <header className="text-center mb-4 w-full max-w-md lg:max-w-3xl flex justify-between items-end px-1">
       <div>
         <h1 className="text-2xl font-bold text-slate-800 text-left">ナンプレSolver</h1>
-        <p className="text-[10px] text-slate-500 text-left">v7: +Claiming (Locked Candidates Type 2)</p>
       </div>
       <button
         onClick={onLoadPreset}

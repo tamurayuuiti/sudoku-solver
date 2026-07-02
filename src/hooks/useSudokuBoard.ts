@@ -9,11 +9,18 @@ import {
   isValidPlacement,
   solveBacktrack,
 } from "../utils/sudokuLogic";
+import { useKeyboardControl } from "./useKeyboardControl";
+
+/** 初期選択セル（盤面中央）。ページを開いた直後からキーボード操作をすぐ使えるようにするため。 */
+const DEFAULT_SELECTED_CELL = 40;
 
 /**
  * 数独盤面の状態・ユーザー操作・ソルバー実行・リプレイ表示までを
  * まとめて扱うカスタムHook。App コンポーネントが直接 useState/useCallback
  * を多数抱えていた状態を、盤面に関する一つの責務としてここに集約する。
+ *
+ * マウス（クリック）とキーボードは同じ selectedCell / setCellValue を共有するため、
+ * どちらで操作しても状態が食い違わない。
  */
 export function useSudokuBoard() {
   const [boardState, setBoardState] = useState<Board>(() => Array<number>(BOARD_SIZE).fill(0));
@@ -24,6 +31,7 @@ export function useSudokuBoard() {
   const [status, setStatus] = useState<StatusMessage | null>(null);
   const [replayActive, setReplayActive] = useState<boolean>(false);
   const [replayStep, setReplayStep] = useState<number>(0);
+  const [selectedCell, setSelectedCell] = useState<number | null>(DEFAULT_SELECTED_CELL);
 
   const hideReplay = useCallback(() => {
     setReplayActive(false);
@@ -31,15 +39,19 @@ export function useSudokuBoard() {
     setReplayStep(0);
   }, []);
 
-  const handleCellClick = useCallback(
-    (index: number) => {
+  /**
+   * 指定セルに値をセットする共通処理。クリック（ツールパレットの値）・
+   * キーボード入力（数字キー / クリア）の両方から利用する単一の入力経路。
+   */
+  const setCellValue = useCallback(
+    (index: number, value: number) => {
       if (replayActive) hideReplay();
 
       const next = [...boardState];
-      next[index] = selectedTool;
+      next[index] = value;
       setBoardState(next);
 
-      if (selectedTool === 0) {
+      if (value === 0) {
         setUserInputIndices((prev) => {
           const nextSet = new Set(prev);
           nextSet.delete(index);
@@ -48,15 +60,41 @@ export function useSudokuBoard() {
         setStatus(null);
       } else {
         setUserInputIndices((prev) => new Set(prev).add(index));
-        if (!isValidPlacement(next, index, selectedTool)) {
+        if (!isValidPlacement(next, index, value)) {
           setStatus({ text: "矛盾があります", color: "text-red-500" });
         } else {
           setStatus(null);
         }
       }
     },
-    [replayActive, selectedTool, hideReplay, boardState],
+    [replayActive, hideReplay, boardState],
   );
+
+  const handleCellClick = useCallback(
+    (index: number) => {
+      setSelectedCell(index);
+      setCellValue(index, selectedTool);
+    },
+    [setCellValue, selectedTool],
+  );
+
+  /**
+   * キーボードでの数字入力・クリア。ツールパレットの選択状態（selectedTool）にも
+   * 反映することで、キーボードとパレットの見た目・挙動の一貫性を保つ。
+   */
+  const handleKeyboardInput = useCallback(
+    (index: number, value: number) => {
+      setSelectedTool(value);
+      setCellValue(index, value);
+    },
+    [setCellValue],
+  );
+
+  useKeyboardControl({
+    selectedCell,
+    setSelectedCell,
+    onInputValue: handleKeyboardInput,
+  });
 
   const loadPreset = useCallback(() => {
     const nextBoard = Array<number>(BOARD_SIZE).fill(0);
@@ -178,6 +216,7 @@ export function useSudokuBoard() {
     replayStep,
     setReplayStep,
     solutionSteps,
+    selectedCell,
     handleCellClick,
     loadPreset,
     resetBoard,
